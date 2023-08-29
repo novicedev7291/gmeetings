@@ -29,14 +29,26 @@ type Range struct {
 	enddate     time.Time
 	occurrences int // i.e. numbered 10 occurrences
 }
+
+type Interval int
+
+type Index int
+
+const (
+	FIRST  Index = 1
+	SECOND Index = 2
+	THIRD  Index = 3
+	LAST   Index = -1
+)
+
 type Recurrence struct {
 	patternType Type
-	interval    int // i.e. in every two weeks, months, day(s)
+	interval    Interval // i.e. in every two weeks, months, day(s)
 	daysOfWeek  []string
 	day         int    // i.e. day of month & year
 	dayOfMonth  string // i.e. which day of month i.e. Tue, Mon, Weekday, Weekend
 	dayOfYear   string
-	index       int // i.e. First, Second, Third, Last day of month
+	index       Index // i.e. First, Second, Third, Last day of month
 }
 
 type Meeting struct {
@@ -45,14 +57,18 @@ type Meeting struct {
 	ranges     Range
 }
 
-func PossibleNextDatesFor(meeting Meeting) []time.Time {
+func NextDatesFor(meeting Meeting) []time.Time {
 	var result []time.Time
-	if meeting.recurrence.patternType == DAILY {
+
+	switch t := meeting.recurrence.patternType; t {
+	case DAILY:
 		end := meeting.ranges.enddate
 		for start := meeting.ranges.startdate; !start.After(end); {
 			result = append(result, start)
 			start = start.AddDate(0, 0, 1)
 		}
+	case WEEKLY:
 	}
+
 	return result
 }
